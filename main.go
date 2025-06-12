@@ -2,7 +2,7 @@ package main
 
 import (
 	"onlysync/configs"
-	"onlysync/route"
+	"onlysync/routes"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -28,7 +28,7 @@ func main() {
 		return c.JSON(200, &echo.Map{"data": "Hello from OnlySync API", "status": "success"})
 	})
 	//routes
-	route.LoginRoutes(e)
+	routes.LoginRoutes(e)
 
 	e.Logger.Fatal(e.Start(":8080"))
 }

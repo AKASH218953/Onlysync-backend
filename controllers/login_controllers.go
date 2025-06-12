@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"onlysync/configs"
 	"onlysync/models"
-	"onlysync/responce"
+	"onlysync/responces"
 	"time"
 
 	"github.com/labstack/echo/v4"
@@ -23,14 +23,14 @@ func Signup(c echo.Context) error {
 
 	var user models.User
 	if err := c.Bind(&user); err != nil {
-		return c.JSON(http.StatusBadRequest, responce.UserResponse{
+		return c.JSON(http.StatusBadRequest, responces.LoginResponse{
 			Status:  http.StatusBadRequest,
 			Message: "Invalid input data",
 			Data:    map[string]interface{}{"error": err.Error()},
 		})
 	}
 	if user.Username == "" || user.Email == "" || user.Password == "" {
-		return c.JSON(http.StatusBadRequest, responce.UserResponse{
+		return c.JSON(http.StatusBadRequest, responces.LoginResponse{
 			Status:  http.StatusBadRequest,
 			Message: "Username, email, and password are required",
 			Data:    map[string]interface{}{"error": "Missing required fields"},
@@ -48,14 +48,14 @@ func Signup(c echo.Context) error {
 
 	err := userCollection.FindOne(ctx, filters).Decode(&user)
 	if err == nil {
-		return c.JSON(http.StatusConflict, responce.UserResponse{
+		return c.JSON(http.StatusConflict, responces.LoginResponse{
 			Status:  http.StatusConflict,
 			Message: "User already exists",
 			Data:    map[string]interface{}{"error": "User with this email already exists"},
 		})
 
 	} else if err != mongo.ErrNoDocuments {
-		return c.JSON(http.StatusInternalServerError, responce.UserResponse{
+		return c.JSON(http.StatusInternalServerError, responces.LoginResponse{
 			Status:  http.StatusInternalServerError,
 			Message: "Error checking existing user",
 			Data:    map[string]interface{}{"error": err.Error()},
@@ -81,7 +81,7 @@ func Signup(c echo.Context) error {
 
 	insertResult, err := userCollection.InsertOne(context.Background(), newuser)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, responce.UserResponse{
+		return c.JSON(http.StatusInternalServerError, responces.LoginResponse{
 			Status:  http.StatusInternalServerError,
 			Message: "Error inserting data",
 			Data:    err.Error(),
@@ -89,7 +89,7 @@ func Signup(c echo.Context) error {
 	}
 
 	// Implement signup logic here
-	return c.JSON(http.StatusAccepted, responce.UserResponse{
+	return c.JSON(http.StatusAccepted, responces.LoginResponse{
 		Status:  http.StatusAccepted,
 		Message: "Signup successful",
 		Data:    insertResult,
